@@ -28,6 +28,8 @@ namespace Image
         private List<Button> _imageButtonList = new List<Button>();
         private List<Button> _methodButtonList = new List<Button>();
         private int count = 0;
+        private Image<Gray, Single> img_final;
+        private Image<Gray, float> sobel;
 
         public mainForm()
         {
@@ -75,8 +77,8 @@ namespace Image
                 if (!binarizationButton.Enabled) _iPObj.binarization();
                 if (!reliefButton.Enabled) _iPObj.relief();
                 if (!negativeButton.Enabled) _iPObj.negative();
-                if (!horizontalButton.Enabled) _iPObj1.horizontal(_iPObj.smoothed_frame);
-                if (!verticalButton.Enabled) _iPObj1.vertical(_iPObj.smoothed_frame);
+                if (!horizontalButton.Enabled) _iPObj1.horizontal(_iPObj.flip_frame);
+                if (!verticalButton.Enabled) _iPObj1.vertical(_iPObj.flip_frame);
                 //***
 
                 updateOutput();
@@ -86,22 +88,22 @@ namespace Image
         }
         public void updateOutput()
         {
-            //_iPObj.smoothed();
-            //grayButton.Enabled = false;
-            OutputPictureBox.Image = _iPObj.result_frame.ToBitmap();
-           // if (grayButton.Enabled) _iPObj.gray();
-            if (!horizontalButton.Enabled)
-            {
-                OutputPictureBox.Image = _iPObj.result_frame.ToBitmap();
-                _iPObj.horizontal(_iPObj.result_frame);
-                OutputPictureBox.Image = _iPObj.flip_frame.ToBitmap();
-            }
-            if (!verticalButton.Enabled)
-            {
-                OutputPictureBox.Image = _iPObj.result_frame.ToBitmap();
-                _iPObj.vertical(_iPObj.result_frame);
-                OutputPictureBox.Image = _iPObj.flip_frame.ToBitmap();
-            }
+            _iPObj.edge();
+            //OutputPictureBox.Image = _iPObj.result_frame.ToBitmap();
+            img_final = _iPObj.grayframe.Sobel(0, 1, 3).Add(_iPObj.grayframe.Sobel(1, 0, 3)).AbsDiff(new Gray(0.0)); 
+            OutputPictureBox.Image = img_final.ToBitmap();
+            /*  if (!horizontalButton.Enabled)
+              {
+
+                  _iPObj.horizontal(_iPObj.result_frame);
+                  OutputPictureBox.Image = _iPObj.flip_frame.ToBitmap();
+              }
+              if (!verticalButton.Enabled)
+              {
+
+                  _iPObj.vertical(_iPObj.result_frame);
+                  OutputPictureBox.Image = _iPObj.flip_frame.ToBitmap();
+              }*/
         }
 
         public void updateSmoothed()
@@ -110,20 +112,15 @@ namespace Image
             smoothedBox.Image = _iPObj.grayframe.ToBitmap();
             if (!horizontalButton.Enabled)
             {
-                _iPObj1.horizontal(_iPObj.smoothed_frame);
+                _iPObj1.horizontal(_iPObj.grayframe.Convert<Bgr, byte>());
                 smoothedBox.Image = _iPObj1.flip_frame.ToBitmap();
             }
             else if (!verticalButton.Enabled)
             {
-                _iPObj1.vertical(_iPObj.smoothed_frame);
+                _iPObj1.vertical(_iPObj.grayframe.Convert<Bgr, byte>());
                 smoothedBox.Image = _iPObj1.flip_frame.ToBitmap();
             }
-          /*  else if (!horizontalButton.Enabled && !verticalButton.Enabled)
-            {
-                _iPObj1.horizontal(_iPObj.smoothed_frame);
-                _iPObj1.vertical(_iPObj.flip_frame);
-                smoothedBox.Image = _iPObj1.flip_frame.ToBitmap();
-            }*/
+
         }
 
         public void updateFaceDection()
@@ -232,7 +229,5 @@ namespace Image
 
             //座標擷取方法與比例轉換，可參考作業1之去背功能中的像素選擇
         }
-
-
     }
 }

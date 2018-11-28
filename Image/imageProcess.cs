@@ -22,7 +22,8 @@ namespace Image
         public Image<Bgr, Byte> smoothed_frame = null;
         public Image<Bgr, Byte> facedetect_frame = null;
         public Image<Bgr, Byte> temp_frame;
-        public Image<Gray, byte> grayframe;
+        public Image<Gray, Byte> grayframe;
+        public Image<Gray, Single> img_final;
         private int width;
         private int height;
         private CascadeClassifier cascadeClassifier = new CascadeClassifier("haarcascade_frontalface_alt2.xml");
@@ -40,21 +41,21 @@ namespace Image
         
         public void gray()
         {
-            temp_frame = source_frame.Clone();
-           
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    byte pixelB = temp_frame.Data[y, x, 0];
-                    byte pixelG = temp_frame.Data[y, x, 1];
-                    byte pixelR = temp_frame.Data[y, x, 2];
-                    byte grayPixel = (byte)((pixelB + pixelG + pixelR) / 3);
-                    result_frame.Data[y, x, 0] = grayPixel;
-                    result_frame.Data[y, x, 1] = grayPixel;
-                    result_frame.Data[y, x, 2] = grayPixel;
-                }
-            }
+             temp_frame = source_frame.Clone();
+
+             for (int y = 0; y < height; y++)
+             {
+                 for (int x = 0; x < width; x++)
+                 {
+                     byte pixelB = temp_frame.Data[y, x, 0];
+                     byte pixelG = temp_frame.Data[y, x, 1];
+                     byte pixelR = temp_frame.Data[y, x, 2];
+                     byte grayPixel = (byte)((pixelB + pixelG + pixelR) / 3);
+                     result_frame.Data[y, x, 0] = grayPixel;
+                     result_frame.Data[y, x, 1] = grayPixel;
+                     result_frame.Data[y, x, 2] = grayPixel;
+                 }
+             }
         }
 
         public void binarization()
@@ -107,6 +108,13 @@ namespace Image
                     result_frame.Data[y, x, 2] = R;
                 }
             }
+        }
+
+        public void edge()
+        {
+            temp_frame = source_frame.Clone();
+            grayframe = temp_frame.Convert<Gray, byte>();
+            img_final = grayframe.Sobel(0, 1, 3).Add(grayframe.Sobel(1, 0, 3)).AbsDiff(new Gray(0.0));
         }
 
         public void horizontal(Image<Bgr, Byte> frame)

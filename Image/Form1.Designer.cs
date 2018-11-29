@@ -47,6 +47,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.smoothedBox = new System.Windows.Forms.PictureBox();
             this.faceDetectionBox = new System.Windows.Forms.PictureBox();
+            this.edgeButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.SourcePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.OutputPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.smoothedBox)).BeginInit();
@@ -236,11 +237,24 @@
             this.faceDetectionBox.TabIndex = 34;
             this.faceDetectionBox.TabStop = false;
             // 
+            // edgeButton
+            // 
+            this.edgeButton.Enabled = false;
+            this.edgeButton.Font = new System.Drawing.Font("微軟正黑體", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.edgeButton.Location = new System.Drawing.Point(791, 59);
+            this.edgeButton.Name = "edgeButton";
+            this.edgeButton.Size = new System.Drawing.Size(69, 23);
+            this.edgeButton.TabIndex = 35;
+            this.edgeButton.Text = "邊緣偵測";
+            this.edgeButton.UseVisualStyleBackColor = true;
+            this.edgeButton.Click += new System.EventHandler(this.edgeButton_Click);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(865, 817);
+            this.Controls.Add(this.edgeButton);
             this.Controls.Add(this.faceDetectionBox);
             this.Controls.Add(this.smoothedBox);
             this.Controls.Add(this.label4);
@@ -288,6 +302,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.PictureBox smoothedBox;
         private System.Windows.Forms.PictureBox faceDetectionBox;
+        private System.Windows.Forms.Button edgeButton;
     }
 }
 

@@ -115,6 +115,7 @@ namespace Image
             temp_frame = source_frame.Clone();
             grayframe = temp_frame.Convert<Gray, byte>();
             img_final = grayframe.Sobel(0, 1, 3).Add(grayframe.Sobel(1, 0, 3)).AbsDiff(new Gray(0.0));
+            result_frame = img_final.Convert<Bgr, byte>();
         }
 
         public void horizontal(Image<Bgr, Byte> frame)

@@ -29,7 +29,9 @@ namespace Image
         private List<Button> _methodButtonList = new List<Button>();
         private int count = 0;
         private Image<Gray, Single> img_final;
-        private Image<Gray, float> sobel;
+        private Image<Bgr, Byte> temp_frame;
+        private bool horizontal_bool = false;
+        private bool vertical_bool = false;
 
         public mainForm()
         {
@@ -56,6 +58,7 @@ namespace Image
             _imageButtonList.Add(binarizationButton);
             _imageButtonList.Add(negativeButton);
             _imageButtonList.Add(reliefButton);
+            _imageButtonList.Add(edgeButton);
 
             _methodButtonList.Add(horizontalButton);
             _methodButtonList.Add(verticalButton);
@@ -77,64 +80,92 @@ namespace Image
                 if (!binarizationButton.Enabled) _iPObj.binarization();
                 if (!reliefButton.Enabled) _iPObj.relief();
                 if (!negativeButton.Enabled) _iPObj.negative();
-                if (!horizontalButton.Enabled) _iPObj1.horizontal(_iPObj.flip_frame);
-                if (!verticalButton.Enabled) _iPObj1.vertical(_iPObj.flip_frame);
-                //***
+                if (!edgeButton.Enabled) _iPObj.edge();
 
+                updateSource();
                 updateOutput();
                 updateSmoothed();
                 updateFaceDection();
             }
         }
-        public void updateOutput()
+
+        public void updateSource()
         {
-            _iPObj.edge();
-            //OutputPictureBox.Image = _iPObj.result_frame.ToBitmap();
-            img_final = _iPObj.grayframe.Sobel(0, 1, 3).Add(_iPObj.grayframe.Sobel(1, 0, 3)).AbsDiff(new Gray(0.0)); 
-            OutputPictureBox.Image = img_final.ToBitmap();
-            /*  if (!horizontalButton.Enabled)
-              {
+            temp_frame = _iPObj.source_frame;
+            SourcePictureBox.Image = temp_frame.ToBitmap();
+            if (horizontal_bool)
+            {
+                _iPObj1.horizontal(temp_frame);
+                temp_frame = _iPObj1.flip_frame;
+                SourcePictureBox.Image = _iPObj1.flip_frame.ToBitmap();
+            }
+            if (vertical_bool)
+            {
+                _iPObj1.vertical(temp_frame);
+                temp_frame = _iPObj1.flip_frame;
+                SourcePictureBox.Image = _iPObj1.flip_frame.ToBitmap();
+            }
+        }
+            public void updateOutput()
+        {
+            // _iPObj.edge();
 
-                  _iPObj.horizontal(_iPObj.result_frame);
-                  OutputPictureBox.Image = _iPObj.flip_frame.ToBitmap();
-              }
-              if (!verticalButton.Enabled)
-              {
+            temp_frame = _iPObj.result_frame;
+            OutputPictureBox.Image = temp_frame.ToBitmap();
+          /*  img_final = _iPObj.grayframe.Sobel(0, 1, 3).Add(_iPObj.grayframe.Sobel(1, 0, 3)).AbsDiff(new Gray(0.0)); 
+            OutputPictureBox.Image = img_final.ToBitmap();*/
+            if (horizontal_bool)
+            {
+                _iPObj1.horizontal(temp_frame);
+                temp_frame = _iPObj1.flip_frame;
+                OutputPictureBox.Image = _iPObj1.flip_frame.ToBitmap();
+            }
+            if (vertical_bool)
+            {
+                _iPObj1.vertical(temp_frame);
+                temp_frame = _iPObj1.flip_frame;
+                OutputPictureBox.Image = _iPObj1.flip_frame.ToBitmap();
 
-                  _iPObj.vertical(_iPObj.result_frame);
-                  OutputPictureBox.Image = _iPObj.flip_frame.ToBitmap();
-              }*/
+            }
         }
 
         public void updateSmoothed()
         {
             _iPObj.smoothed();
-            smoothedBox.Image = _iPObj.grayframe.ToBitmap();
-            if (!horizontalButton.Enabled)
-            {
-                _iPObj1.horizontal(_iPObj.grayframe.Convert<Bgr, byte>());
+            temp_frame = _iPObj.grayframe.Convert<Bgr, byte>();
+            smoothedBox.Image = temp_frame.ToBitmap();
+            if (horizontal_bool)
+              {
+                  _iPObj1.horizontal(temp_frame);
+                temp_frame = _iPObj1.flip_frame;
+                  smoothedBox.Image = _iPObj1.flip_frame.ToBitmap();
+              }
+              if (vertical_bool)
+              {
+                  _iPObj1.vertical(temp_frame);
+                temp_frame = _iPObj1.flip_frame;
                 smoothedBox.Image = _iPObj1.flip_frame.ToBitmap();
-            }
-            else if (!verticalButton.Enabled)
-            {
-                _iPObj1.vertical(_iPObj.grayframe.Convert<Bgr, byte>());
-                smoothedBox.Image = _iPObj1.flip_frame.ToBitmap();
-            }
+
+              }
 
         }
 
         public void updateFaceDection()
         {
             _iPObj.facedetect();
-            faceDetectionBox.Image = _iPObj.facedetect_frame.ToBitmap();
-            if (!horizontalButton.Enabled)
+            temp_frame = _iPObj.facedetect_frame;
+            //faceDetectionBox.Image = _iPObj.facedetect_frame.ToBitmap();
+            faceDetectionBox.Image = temp_frame.ToBitmap();
+            if (horizontal_bool)
             {
-                _iPObj.horizontal(_iPObj.facedetect_frame);
-                faceDetectionBox.Image = _iPObj.flip_frame.ToBitmap();
+                _iPObj1.horizontal(temp_frame);
+                temp_frame = _iPObj1.flip_frame;
+                faceDetectionBox.Image = _iPObj1.flip_frame.ToBitmap();
             }
-            else if (!verticalButton.Enabled)
+            if (vertical_bool)
             {
-                _iPObj.vertical(_iPObj.facedetect_frame);
+                _iPObj.vertical(temp_frame);
+                temp_frame = _iPObj1.flip_frame;
                 faceDetectionBox.Image = _iPObj.flip_frame.ToBitmap();
             }
         }
@@ -145,14 +176,11 @@ namespace Image
             //被點擊按鈕Enabled = false，並在timer_Tick中觸發該功能
             foreach (Button b in _imageButtonList) b.Enabled = true;            
             if(clickedButton != null) clickedButton.Enabled = false;
-            //*********************************************************
-            foreach (Button b in _methodButtonList) b.Enabled = true;
-            if (clickedButton != null) clickedButton.Enabled = false;
+
         }
         private void disableControll(Button clickedButton)
         {
             foreach (Button b in _imageButtonList) b.Enabled = false;
-            foreach (Button b in _methodButtonList) b.Enabled = false;
         }
 
         //開啟攝影機
@@ -174,7 +202,8 @@ namespace Image
                 OutputPictureBox.Image = null;
                 smoothedBox.Image = null;
                 faceDetectionBox.Image = null;
-              count++;
+               
+                count++;
             }
         }       
         //離開
@@ -188,13 +217,17 @@ namespace Image
         //水平翻轉
         private void horizontal_Click(object sender, EventArgs e)
         {
-            enableControll((Button)sender);
+            //enableControll((Button)sender);
+            if (!horizontal_bool) horizontal_bool = true;
+            else horizontal_bool = false;
         }
 
         //垂直翻轉
         private void verticalButton_Click(object sender, EventArgs e)
         {
-            enableControll((Button)sender);
+            // enableControll((Button)sender);
+            if (!vertical_bool) vertical_bool = true;
+            else vertical_bool = false;
         }
 
         //灰階
@@ -228,6 +261,11 @@ namespace Image
             //用於框選輸入影像中，欲追蹤之顏色物件
 
             //座標擷取方法與比例轉換，可參考作業1之去背功能中的像素選擇
+        }
+
+        private void edgeButton_Click(object sender, EventArgs e)
+        {
+            enableControll((Button)sender);
         }
     }
 }
